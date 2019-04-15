@@ -1,26 +1,40 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import "./App.css";
+import Searchbar from "./components/Searchbar";
+import { Segment, Header } from "semantic-ui-react";
+import Results from "./components/Results";
+import { callApi } from "./util";
 
 class App extends Component {
+  state = { showResults: false, weatherData: null };
+
+  toggleResults = opt => {
+    this.setState({ showResults: opt });
+  };
+
+  getResults = query => {
+    callApi(query)
+      .then(response => this.setState({ weatherData: response.data }))
+      .catch(err => {
+        console.log(err);
+        this.setState({ weatherData: null });
+      });
+  };
+
   render() {
+    const { showResults, weatherData } = this.state;
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <Segment>
+        <Header>Weather React App</Header>
+        <p>
+          Search by typing the city name and the country code, e.g. "Athens, GR"
+        </p>
+        <Searchbar
+          toggleResults={this.toggleResults}
+          getResults={this.getResults}
+        />
+        {showResults && <Results data={weatherData} />}
+      </Segment>
     );
   }
 }
